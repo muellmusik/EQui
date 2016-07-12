@@ -240,3 +240,21 @@ EQui : QUserView {
 		}
 	}
 }
+
++ UGen {
+
+	equise {
+		var params, chain;
+		params = [[100,0,1], [250,0,1], [1000,0,1], [3500,0,1], [6000,0,1]]; // defaults
+		chain = this;
+
+		chain = BLowShelf.ar( chain, *LagControl.names([\loShelf]).kr(params[0][[0,2,1]], 0.1));
+		chain = BPeakEQ.ar( chain, *LagControl.names([\loPeak]).kr(params[1][[0,2,1]], 0.1));
+		chain = BPeakEQ.ar( chain, *LagControl.names([\midPeak]).kr(params[2][[0,2,1]], 0.1));
+		chain = BPeakEQ.ar( chain, *LagControl.names([\hiPeak]).kr(params[3][[0,2,1]], 0.1));
+		chain = BHiShelf.ar( chain, *LagControl.names([\hiShelf]).kr(params[4][[0,2,1]], 0.1));
+		chain = RemoveBadValues.ar( chain );
+
+		^chain;
+	}
+}
