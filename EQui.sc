@@ -123,6 +123,28 @@ EQui : QUserView {
 			{ Pen.stringAtPoint( "shift: snap, alt: rq", 35@1 ); };
 			*/
 
+			if( selected != -1, {
+				var string, strBounds;
+
+				string = [ "low shelf: %hz, %dB, rs=%",
+						"peak 1: %hz, %dB, rq=%",
+						"peak 2: %hz, %dB, rq=%",
+						"peak 3: %hz, %dB, rq=%",
+						"hi shelf: %hz, %dB, rs=%"
+					][ selected ].format(
+						params[selected][0],
+						params[selected][1],
+						params[selected][2]
+					);
+				strBounds = string.bounds(Pen.font);
+				strBounds.top = 1;
+				strBounds.left = this.bounds.width - 1 - strBounds.width;
+				Pen.color = Color.white.alpha_(0.8);
+				Pen.addRect(strBounds);
+				Pen.fill;
+				Pen.stringInRect(string, strBounds, Pen.font, Color.gray(0.2).alpha_(0.5), \right);
+			});
+
 			values.do({ |svals,i|
 				var color;
 				color = Color.hsv(
@@ -151,10 +173,6 @@ EQui : QUserView {
 				Pen.lineTo( (i+1)@val );
 			});
 			Pen.stroke;
-
-
-
-
 
 		};
 		//eq[ \pu_filebuttons ][1].action.value; // revert
