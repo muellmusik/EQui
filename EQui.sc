@@ -1,6 +1,6 @@
 // ht to Wouter Snoei
 EQui : QUserView {
-	var <>params;
+	var <>params, <>target;
 
 	*viewClass { ^QUserView }
 
@@ -231,13 +231,19 @@ EQui : QUserView {
 					];
 					vw.refresh;
 				};
-				action.value(params);
+				this.doAction;
 				vw.refresh;
 
 			};
 
 
 		}
+	}
+
+	doAction {
+		action.value(params);
+		target.set(
+			\loShelf, params[0][[0, 2, 1]], \loPeak, params[1][[0, 2, 1]], \midPeak, params[2][[0, 2, 1]], \hiPeak, params[3][[0, 2, 1]], \hiShelf, params[4][[0, 2, 1]])
 	}
 }
 
