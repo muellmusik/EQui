@@ -267,7 +267,7 @@ EQui : QUserView {
 
 + UGen {
 
-	equise {
+	equi {
 		var params, chain;
 		params = [[100,0,1], [250,0,1], [1000,0,1], [3500,0,1], [6000,0,1]]; // defaults
 		chain = this;
