@@ -1,6 +1,6 @@
 // ht to Wouter Snoei
 EQui : QUserView {
-	var <>params, <>target, prefix;
+	var <params, <target, prefix;
 
 	*viewClass { ^QUserView }
 
@@ -11,6 +11,10 @@ EQui : QUserView {
 	*sizeHint {
 		^Point(300,200);
 	}
+
+	target_ {|intarget| target = intarget; target.set(*params.asArgsArray(prefix)); }
+
+	params_ {|inparams| params = inparams; this.doAction }
 
 	init {|intarget, inparams, inprefix|
 		var selected = -1;
