@@ -22,7 +22,7 @@ EQui : QUserView {
 		params = inparams ?? { EQuiParams() };
 		target = intarget;
 		prefix = inprefix;
-		sampleRate = insr ?? {Server.default.sampleRate};
+		sampleRate = insr ?? {Server.default.options.sampleRate} ? 44100;
 
 		this.drawFunc = { |vw|
 			var freqs, svals, values, bounds, zeroline;
