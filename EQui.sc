@@ -30,7 +30,6 @@ EQui : QUserView {
 			var dimvlines = [25,50,75, 250,500,750, 2500,5000,7500];
 			var hlines = [-18,-12,-6,6,12,18];
 			var pt, strOffset = 11;
-			var bands = [\loShelf, \loPeak, \midPeak, \hiPeak, \hiShelf];
 
 			bounds = vw.bounds.moveTo(0,0);
 
@@ -68,9 +67,7 @@ EQui : QUserView {
 			Pen.roundedRect( bounds, [6,6,0,0] ).fill;
 
 			Pen.color = Color.gray(0.2).alpha_(0.5);
-			//Pen.strokeRect( bounds.insetBy(-1,-1) );
 
-			//Pen.addRect( bounds ).clip;
 			Pen.roundedRect( bounds.insetBy(0,0), [6,6,0,0] ).clip;
 
 			Pen.color = Color.gray(0.2).alpha_(0.125);
@@ -90,11 +87,6 @@ EQui : QUserView {
 			});
 			Pen.line( 0@zeroline, bounds.width@zeroline ).stroke;
 
-			/*
-			Pen.color = Color.white.alpha_(0.5);
-			Pen.fillRect( Rect( 33, 0, 206, 14 ) );
-			*/
-
 			Pen.font = Font( Font.defaultSansFace, 10 );
 
 			Pen.color = Color.gray(0.2).alpha_(0.5);
@@ -107,26 +99,6 @@ EQui : QUserView {
 				Pen.stringAtPoint( ["100Hz", "1KHz", "10KHz"][i],
 					(vline+2)@(bounds.height - (strOffset + 1)) );
 			});
-
-			//Pen.roundedRect( bounds.insetBy(0.5,0.5), [5,5,0,0] ).stroke;
-
-			/*
-			if( selected != -1 )
-			{ Pen.stringAtPoint(
-			[ "low shelf: %hz, %dB, rs=%",
-			"peak 1: %hz, %dB, rq=%",
-			"peak 2: %hz, %dB, rq=%",
-			"peak 3: %hz, %dB, rq=%",
-			"hi shelf: %hz, %dB, rs=%"
-			][ selected ].format(
-			params[selected][0],
-			params[selected][1],
-			params[selected][2]
-			),
-			35@1 );
-			}
-			{ Pen.stringAtPoint( "shift: snap, alt: rq", 35@1 ); };
-			*/
 
 			if( selected != -1, {
 				var string, strBounds;
@@ -180,10 +152,7 @@ EQui : QUserView {
 			Pen.stroke;
 
 		};
-		//eq[ \pu_filebuttons ][1].action.value; // revert
 		this.refresh;
-
-		//this.refreshInRect( this.bounds.insetBy(-2,-2) );
 
 		this.mouseDownAction = { |vw,x,y,mod|
 			var bounds;
@@ -191,14 +160,8 @@ EQui : QUserView {
 			var min = 20, max = 22050, range = 24;
 
 			bounds = vw.bounds.moveTo(0,0);
-			//pt = (x@y) - (bounds.leftTop);
 			pt = (x@y);
 
-/*			selected =  params.asTriplets.detectIndex({ |array|
-				(( array[ 0 ].explin( min, max, 0, bounds.width ) )@
-					( array[ 1 ].linlin( range.neg, range, bounds.height, 0, \none ) ))
-				.dist( pt ) <= 5;
-			}) ? -1;*/
 			selected =  (0..4).detect({ |index|
 				(( params.freqByIndex(index).explin( min, max, 0, bounds.width ) )@
 					( params.gainByIndex(index).linlin( range.neg, range, bounds.height, 0, \none ) ))
@@ -215,7 +178,6 @@ EQui : QUserView {
 			var min = 20, max = 22050, range = 24;
 
 			bounds = vw.bounds.moveTo(0,0);
-			//pt = (x@y) - (bounds.leftTop);
 			pt = (x@y);
 
 			if( selected != -1 )
