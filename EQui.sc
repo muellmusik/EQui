@@ -14,7 +14,7 @@ EQui : QUserView {
 
 	target_ {|intarget| target = intarget; target.set(*params.asArgsArray(prefix)); }
 
-	params_ {|inparams| params = inparams; this.doAction }
+	params_ {|inparams| params = inparams; this.refresh; this.doAction }
 
 	init {|intarget, inparams, inprefix|
 		var selected = -1;
