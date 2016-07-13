@@ -1,21 +1,24 @@
 // ht to Wouter Snoei
 EQui : QUserView {
-	var <>params, <>target;
+	var <>params, <>target, prefix;
 
 	*viewClass { ^QUserView }
 
-	*new { arg parent, bounds;
-		^super.new(parent, bounds).init;
+	*new { arg parent, bounds, target, prefix = "";
+		^super.new(parent, bounds).init(target, prefix);
 	}
 
 	*sizeHint {
 		^Point(300,200);
 	}
 
-	init {
+	init {|intarget, inprefix|
 		var selected = -1;
 		var downX, downY;
 		params = [[100,0,1], [250,0,1], [1000,0,1], [3500,0,1], [6000,0,1]]; // init vals
+		target = intarget;
+		prefix = inprefix;
+
 		this.drawFunc = { |vw|
 			var freqs, svals, values, bounds, zeroline;
 			var freq = 1200, rq = 0.5, db = 12;
@@ -261,22 +264,23 @@ EQui : QUserView {
 	doAction {
 		action.value(params);
 		target.set(
-			\loShelf, params[0][[0, 2, 1]], \loPeak, params[1][[0, 2, 1]], \midPeak, params[2][[0, 2, 1]], \hiPeak, params[3][[0, 2, 1]], \hiShelf, params[4][[0, 2, 1]])
+			prefix ++ "loShelf", params[0][[0, 2, 1]], prefix ++ "loPeak", params[1][[0, 2, 1]], prefix ++ "midPeak", params[2][[0, 2, 1]], prefix ++ "hiPeak", params[3][[0, 2, 1]], prefix ++ "hiShelf", params[4][[0, 2, 1]])
 	}
 }
 
 + UGen {
 
-	equi {
-		var params, chain;
+	equi {|prefix = "", lag = 0.1|
+		var params, chain, lagCtl;
 		params = [[100,0,1], [250,0,1], [1000,0,1], [3500,0,1], [6000,0,1]]; // defaults
 		chain = this;
+		lagCtl = Control.names([prefix ++ "lagEQ"]).kr(lag);
 
-		chain = BLowShelf.ar( chain, *LagControl.names([\loShelf]).kr(params[0][[0,2,1]], 0.1));
-		chain = BPeakEQ.ar( chain, *LagControl.names([\loPeak]).kr(params[1][[0,2,1]], 0.1));
-		chain = BPeakEQ.ar( chain, *LagControl.names([\midPeak]).kr(params[2][[0,2,1]], 0.1));
-		chain = BPeakEQ.ar( chain, *LagControl.names([\hiPeak]).kr(params[3][[0,2,1]], 0.1));
-		chain = BHiShelf.ar( chain, *LagControl.names([\hiShelf]).kr(params[4][[0,2,1]], 0.1));
+		chain = BLowShelf.ar( chain, *Control.names([prefix ++ "loShelf"]).kr(params[0][[0,2,1]]).lag(lagCtl));
+		chain = BPeakEQ.ar( chain, *Control.names([prefix ++ "loPeak"]).kr(params[1][[0,2,1]]).lag(lagCtl));
+		chain = BPeakEQ.ar( chain, *Control.names([prefix ++ "midPeak"]).kr(params[2][[0,2,1]]).lag(lagCtl));
+		chain = BPeakEQ.ar( chain, *Control.names([prefix ++ "\hiPeak"]).kr(params[3][[0,2,1]]).lag(lagCtl));
+		chain = BHiShelf.ar( chain, *Control.names([prefix ++ "\hiShelf"]).kr(params[4][[0,2,1]]).lag(lagCtl));
 		chain = RemoveBadValues.ar( chain );
 
 		^chain;
