@@ -57,10 +57,10 @@ EQui : QUserView {
 			vlines = vlines.explin( min, max, 0, bounds.width );
 			dimvlines = dimvlines.explin( min, max, 0, bounds.width );
 
-			pt = [['loShelfFreq', 'loShelfGain'], ['loPeakFreq', 'loPeakGain'], ['midPeakFreq', 'midPeakGain'], ['hiPeakFreq', 'hiPeakGain'], ['hiShelfFreq', 'hiShelfGain']].collect({ |keys|
-				(params.perform(keys[0]).explin( min, max, 0, bounds.width ))
+			pt = 5.collect({ |ind|
+				(params.freqByIndex(ind).explin( min, max, 0, bounds.width ))
 				@
-				(params.perform(keys[1]).linlin(range.neg,range,bounds.height,0,\none));
+				(params.gainByIndex(ind).linlin(range.neg,range,bounds.height,0,\none));
 			});
 
 			Pen.color_( Color.white.alpha_(0.25) );
