@@ -1,11 +1,11 @@
 // ht to Wouter Snoei
 EQui : QUserView {
-	var <params, <target, prefix;
+	var <params, <target, prefix, sampleRate;
 
 	*viewClass { ^QUserView }
 
-	*new { arg parent, bounds, target, params, prefix = "";
-		^super.new(parent, bounds).init(target, params, prefix);
+	*new { arg parent, bounds, target, params, prefix = "", sampleRate;
+		^super.new(parent, bounds).init(target, params, prefix, sampleRate);
 	}
 
 	*sizeHint {
@@ -16,12 +16,13 @@ EQui : QUserView {
 
 	params_ {|inparams| params = inparams; this.refresh; this.doAction }
 
-	init {|intarget, inparams, inprefix|
+	init {|intarget, inparams, inprefix, insr|
 		var selected = -1;
 		var downX, downY;
 		params = inparams ?? { EQuiParams() };
 		target = intarget;
 		prefix = inprefix;
+		sampleRate = insr ?? {Server.default.sampleRate};
 
 		this.drawFunc = { |vw|
 			var freqs, svals, values, bounds, zeroline;
@@ -37,15 +38,15 @@ EQui : QUserView {
 			freqs = freqs.linexp(0, bounds.width, min, max );
 
 			values = [
-				BLowShelf.magResponse( freqs, 44100, params.loShelfFreq, params.loShelfRs,
+				BLowShelf.magResponse( freqs, sampleRate, params.loShelfFreq, params.loShelfRs,
 					params.loShelfGain),
-				BPeakEQ.magResponse( freqs, 44100, params.loPeakFreq, params.loPeakRq,
+				BPeakEQ.magResponse( freqs, sampleRate, params.loPeakFreq, params.loPeakRq,
 					params.loPeakGain),
-				BPeakEQ.magResponse( freqs, 44100, params.midPeakFreq, params.midPeakRq,
+				BPeakEQ.magResponse( freqs, sampleRate, params.midPeakFreq, params.midPeakRq,
 					params.midPeakGain),
-				BPeakEQ.magResponse( freqs, 44100, params.hiPeakFreq, params.hiPeakRq,
+				BPeakEQ.magResponse( freqs, sampleRate, params.hiPeakFreq, params.hiPeakRq,
 					params.hiPeakGain),
-				BHiShelf.magResponse( freqs, 44100, params.hiShelfFreq, params.hiShelfRs,
+				BHiShelf.magResponse( freqs, sampleRate, params.hiShelfFreq, params.hiShelfRs,
 					params.hiShelfGain)
 			].ampdb.max(-200).min(200);
 
