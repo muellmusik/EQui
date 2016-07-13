@@ -223,7 +223,7 @@ EQuiParams {
 	classvar bands = #[\loShelf, \loPeak, \midPeak, \hiPeak, \hiShelf];
 
 	asArgsArray {|prefix|
-		^[ 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs' ].collectAs({|key| (prefix ++ key).asSymbol->this.perform(key) }, IdentityDictionary).asArgsArray;
+		^[ 'loShelfFreq', loShelfFreq, 'loShelfGain', loShelfGain, 'loShelfRs', loShelfRs, 'loPeakFreq', loPeakFreq, 'loPeakGain', loPeakGain, 'loPeakRq', loPeakRq, 'midPeakFreq', midPeakFreq, 'midPeakGain', midPeakGain, 'midPeakRq', midPeakRq, 'hiPeakFreq', hiPeakFreq, 'hiPeakGain', hiPeakGain, 'hiPeakRq', hiPeakRq, 'hiShelfFreq', hiShelfFreq, 'hiShelfGain', hiShelfGain, 'hiShelfRs', hiShelfRs ]
 	}
 
 	freqByIndex{|index| ^this.perform((bands[index] ++ 'Freq').asSymbol) }
