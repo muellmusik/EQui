@@ -4,48 +4,46 @@ EQui : QUserView {
 
 	*viewClass { ^QUserView }
 
-	*new { arg parent, bounds, target, prefix = "";
-		^super.new(parent, bounds).init(target, prefix);
+	*new { arg parent, bounds, target, params, prefix = "";
+		^super.new(parent, bounds).init(target, params, prefix);
 	}
 
 	*sizeHint {
 		^Point(300,200);
 	}
 
-	init {|intarget, inprefix|
+	init {|intarget, inparams, inprefix|
 		var selected = -1;
 		var downX, downY;
-		params = [[100,0,1], [250,0,1], [1000,0,1], [3500,0,1], [6000,0,1]]; // init vals
+		params = inparams ?? { EQuiParams() };
 		target = intarget;
 		prefix = inprefix;
 
 		this.drawFunc = { |vw|
 			var freqs, svals, values, bounds, zeroline;
-			var freq = 1200, rq = 0.5, db = 12;
 			var min = 20, max = 22050, range = 24;
 			var vlines = [100,1000,10000];
 			var dimvlines = [25,50,75, 250,500,750, 2500,5000,7500];
 			var hlines = [-18,-12,-6,6,12,18];
 			var pt, strOffset = 11;
+			var bands = [\loShelf, \loPeak, \midPeak, \hiPeak, \hiShelf];
 
 			bounds = vw.bounds.moveTo(0,0);
-
-			#freq,db,rq = params[0] ? [ freq, db, rq ];
 
 			freqs = ({|i| i } ! (bounds.width+1));
 			freqs = freqs.linexp(0, bounds.width, min, max );
 
 			values = [
-				BLowShelf.magResponse( freqs, 44100, params[0][0], params[0][2],
-					params[0][1]),
-				BPeakEQ.magResponse( freqs, 44100, params[1][0], params[1][2],
-					params[1][1]),
-				BPeakEQ.magResponse( freqs, 44100, params[2][0], params[2][2],
-					params[2][1]),
-				BPeakEQ.magResponse( freqs, 44100, params[3][0], params[3][2],
-					params[3][1]),
-				BHiShelf.magResponse( freqs, 44100, params[4][0], params[4][2],
-					params[4][1])
+				BLowShelf.magResponse( freqs, 44100, params.loShelfFreq, params.loShelfBw,
+					params.loShelfGain),
+				BPeakEQ.magResponse( freqs, 44100, params.loPeakFreq, params.loPeakBw,
+					params.loPeakGain),
+				BPeakEQ.magResponse( freqs, 44100, params.midPeakFreq, params.midPeakBw,
+					params.midPeakGain),
+				BPeakEQ.magResponse( freqs, 44100, params.hiPeakFreq, params.hiPeakBw,
+					params.hiPeakGain),
+				BHiShelf.magResponse( freqs, 44100, params.hiShelfFreq, params.hiShelfBw,
+					params.hiShelfGain)
 			].ampdb.max(-200).min(200);
 
 			zeroline = 0.linlin(range.neg,range, bounds.height, 0, \none);
@@ -56,10 +54,10 @@ EQui : QUserView {
 			vlines = vlines.explin( min, max, 0, bounds.width );
 			dimvlines = dimvlines.explin( min, max, 0, bounds.width );
 
-			pt = params.collect({ |array|
-				(array[0].explin( min, max, 0, bounds.width ))
+			pt = [['loShelfFreq', 'loShelfGain'], ['loPeakFreq', 'loPeakGain'], ['midPeakFreq', 'midPeakGain'], ['hiPeakFreq', 'hiPeakGain'], ['hiShelfFreq', 'hiShelfGain']].collect({ |keys|
+				(params.perform(keys[0]).explin( min, max, 0, bounds.width ))
 				@
-				(array[1].linlin(range.neg,range,bounds.height,0,\none));
+				(params.perform(keys[1]).linlin(range.neg,range,bounds.height,0,\none));
 			});
 
 			Pen.color_( Color.white.alpha_(0.25) );
@@ -130,15 +128,15 @@ EQui : QUserView {
 				var string, strBounds;
 
 				string = [ "low shelf: %hz, %dB, rs=%",
-						"peak 1: %hz, %dB, rq=%",
-						"peak 2: %hz, %dB, rq=%",
-						"peak 3: %hz, %dB, rq=%",
-						"hi shelf: %hz, %dB, rs=%"
-					][ selected ].format(
-						params[selected][0],
-						params[selected][1],
-						params[selected][2]
-					);
+					"peak 1: %hz, %dB, rq=%",
+					"peak 2: %hz, %dB, rq=%",
+					"peak 3: %hz, %dB, rq=%",
+					"hi shelf: %hz, %dB, rs=%"
+				][ selected ].format(
+					params.freqByIndex(selected),
+					params.gainByIndex(selected),
+					params.bwByIndex(selected)
+				);
 				strBounds = string.bounds(Pen.font);
 				strBounds.top = 1;
 				strBounds.left = this.bounds.width - 1 - strBounds.width;
@@ -192,9 +190,14 @@ EQui : QUserView {
 			//pt = (x@y) - (bounds.leftTop);
 			pt = (x@y);
 
-			selected =  params.detectIndex({ |array|
+/*			selected =  params.asTriplets.detectIndex({ |array|
 				(( array[ 0 ].explin( min, max, 0, bounds.width ) )@
 					( array[ 1 ].linlin( range.neg, range, bounds.height, 0, \none ) ))
+				.dist( pt ) <= 5;
+			}) ? -1;*/
+			selected =  (0..4).detect({ |index|
+				(( params.freqByIndex(index).explin( min, max, 0, bounds.width ) )@
+					( params.gainByIndex(index).linlin( range.neg, range, bounds.height, 0, \none ) ))
 				.dist( pt ) <= 5;
 			}) ? -1;
 			downX = x;
@@ -215,43 +218,20 @@ EQui : QUserView {
 			{
 				case { mod.isAlt }
 				{
-					if(  ModKey( mod ).shift )
-					{
-						params[selected] = params[selected][[0,1]]
-						++ [ y.linexp( bounds.height, 0, 0.1, 10, \none ).nearestInList(
-							if( [0,4].includes(selected) )
-							{[0.6,1,2.5,5,10]}
-							{[0.1,0.25,0.5,1,2.5,5,10]}
+					params.setBwByIndex(selected,
+						(y - downY + params.bwByIndex(selected)
+							.explin( 0.1, 10, bounds.height, 0, \none ))
+						.linexp( bounds.height, 0, 0.1, 10, \none )
+						.clip(if( [0,4].includes(selected) ) { 0.6 } {0.1},
+						10).round(0.01));
 
-						) ];
-					}
-					{
-						params[selected] = params[selected][[0,1]]
-						++ [ (y - downY + params[selected][2].explin( 0.1, 10, bounds.height, 0, \none )).linexp( bounds.height, 0, 0.1, 10, \none ).clip(
-							if( [0,4].includes(selected) ) { 0.6 } {0.1},
-							10).round(0.01)];
-					};
-				}
-				{ ModKey( mod ).shift }
-				{
-					params[selected] = [
-						pt.x.linexp(0, bounds.width, min, max )
-						.nearestInList( [25,50,75,100,250,500,750,1000,2500,5000,7500,10000] ),
-						pt.y.linlin( 0, bounds.height, range, range.neg, \none )
-						.clip2( range ).round(6),
-						params[selected][2]
-					];
 				}
 				{ true }
 				{
-					params[selected] = [
-						pt.x.linexp(0, bounds.width, min, max ).clip(20,20000).round(1),
-						pt.y.linlin( 0, bounds.height, range, range.neg, \none ).clip2( range )
-						.round(0.25),
-						params[selected][2]
-					];
-					vw.refresh;
+					params.setFreqByIndex(selected, pt.x.linexp(0, bounds.width, min, max ).clip(20,20000).round(1));
+					params.setGainByIndex(selected, pt.y.linlin( 0, bounds.height, range, range.neg, \none ).clip2( range ).round(0.25));
 				};
+
 				this.doAction;
 				vw.refresh;
 
@@ -262,40 +242,74 @@ EQui : QUserView {
 	}
 
 	doAction {
-		action.value(params);
-		target.set(
-			prefix ++ "loShelf", params[0][[0, 2, 1]], prefix ++ "loPeak", params[1][[0, 2, 1]], prefix ++ "midPeak", params[2][[0, 2, 1]], prefix ++ "hiPeak", params[3][[0, 2, 1]], prefix ++ "hiShelf", params[4][[0, 2, 1]])
+		action.value(this, params, prefix);
+		target.set(*params.asArgsArray(prefix));
 	}
 }
 
 EQuiParams {
-	var <>loShelfFreq = 100, <>loShelfGain = 0, <>loShelfRs = 1;
-	var <>loPeakFreq = 250, <>loPeakGain = 0, <>loPeakRs = 1;
-	var <>midPeakFreq = 1000, <>midPeakGain = 0, <>midPeakRs = 1;
-	var <>hiPeakFreq = 3500, <>hiPeakGain = 0, <>hiPeakRs = 1;
-	var <>hiShelfFreq = 6000, <>hiShelfGain = 0, <>hiShelfRs = 1;
+	var <>loShelfFreq = 100, <>loShelfGain = 0, <>loShelfBw = 1;
+	var <>loPeakFreq = 250, <>loPeakGain = 0, <>loPeakBw = 1;
+	var <>midPeakFreq = 1000, <>midPeakGain = 0, <>midPeakBw = 1;
+	var <>hiPeakFreq = 3500, <>hiPeakGain = 0, <>hiPeakBw = 1;
+	var <>hiShelfFreq = 6000, <>hiShelfGain = 0, <>hiShelfBw = 1;
+	classvar bands = #[\loShelf, \loPeak, \midPeak, \hiPeak, \hiShelf];
 
-	asArgsArray {
-		^[ 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRs', 'midPeakFreq', 'midPeakGain', 'midPeakRs', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRs', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs' ].collectAs({|key| key->this.perform(key) }, IdentityDictionary).asArgsArray;
+	asArgsArray {|prefix|
+		^[ 'loShelfFreq', 'loShelfGain', 'loShelfBw', 'loPeakFreq', 'loPeakGain', 'loPeakBw', 'midPeakFreq', 'midPeakGain', 'midPeakBw', 'hiPeakFreq', 'hiPeakGain', 'hiPeakBw', 'hiShelfFreq', 'hiShelfGain', 'hiShelfBw' ].collectAs({|key| (prefix ++ key).asSymbol->this.perform(key) }, IdentityDictionary).asArgsArray;
 	}
+
+	freqByIndex{|index| ^this.perform((bands[index] ++ 'Freq').asSymbol) }
+	gainByIndex{|index| ^this.perform((bands[index] ++ 'Gain').asSymbol) }
+	bwByIndex{|index| ^this.perform((bands[index] ++ 'Bw').asSymbol) }
+
+	setFreqByIndex{|index, val| ^this.perform((bands[index] ++ 'Freq_').asSymbol, val) }
+	setGainByIndex{|index, val| ^this.perform((bands[index] ++ 'Gain_').asSymbol, val) }
+	setBwByIndex{|index, val| ^this.perform((bands[index] ++ 'Bw_').asSymbol, val) }
 
 }
 
 + UGen {
 
-	equi {|prefix = "", lag = 0.1|
-		var params, chain, lagCtl;
-		params = [[100,0,1], [250,0,1], [1000,0,1], [3500,0,1], [6000,0,1]]; // defaults
+	equi {|params, prefix = "", lag = 0.1|
+		var chain, lagCtl;
+		params = params ?? {EQuiParams()}; // defaults
 		chain = this;
 		lagCtl = Control.names([prefix ++ "lagEQ"]).kr(lag);
 
-		chain = BLowShelf.ar( chain, *Control.names([prefix ++ "loShelf"]).kr(params[0][[0,2,1]]).lag(lagCtl));
-		chain = BPeakEQ.ar( chain, *Control.names([prefix ++ "loPeak"]).kr(params[1][[0,2,1]]).lag(lagCtl));
-		chain = BPeakEQ.ar( chain, *Control.names([prefix ++ "midPeak"]).kr(params[2][[0,2,1]]).lag(lagCtl));
-		chain = BPeakEQ.ar( chain, *Control.names([prefix ++ "\hiPeak"]).kr(params[3][[0,2,1]]).lag(lagCtl));
-		chain = BHiShelf.ar( chain, *Control.names([prefix ++ "\hiShelf"]).kr(params[4][[0,2,1]]).lag(lagCtl));
+		chain = BLowShelf.ar( chain,
+			NamedControl.kr(prefix ++ "loShelfFreq", params.loShelfFreq, lagCtl),
+			NamedControl.kr(prefix ++ "loShelfBw", params.loShelfBw, lagCtl),
+			NamedControl.kr(prefix ++ "loShelfGain", params.loShelfGain, lagCtl)
+		);
+		chain = BPeakEQ.ar( chain,
+			NamedControl.kr(prefix ++ "loPeakFreq", params.loPeakFreq, lagCtl),
+			NamedControl.kr(prefix ++ "loPeakBw", params.loPeakBw, lagCtl),
+			NamedControl.kr(prefix ++ "loPeakGain", params.loPeakGain, lagCtl)
+		);
+		chain = BPeakEQ.ar( chain,
+			NamedControl.kr(prefix ++ "midPeakFreq", params.midPeakFreq, lagCtl),
+			NamedControl.kr(prefix ++ "midPeakBw", params.midPeakBw, lagCtl),
+			NamedControl.kr(prefix ++ "midPeakGain", params.midPeakGain, lagCtl)
+		);
+		chain = BPeakEQ.ar( chain,
+			NamedControl.kr(prefix ++ "hiPeakFreq", params.hiPeakFreq, lagCtl),
+			NamedControl.kr(prefix ++ "hiPeakBw", params.hiPeakBw, lagCtl),
+			NamedControl.kr(prefix ++ "hiPeakGain", params.hiPeakGain, lagCtl)
+		);
+		chain = BHiShelf.ar( chain,
+			NamedControl.kr(prefix ++ "hiShelfFreq", params.hiShelfFreq, lagCtl),
+			NamedControl.kr(prefix ++ "hiShelfBw", params.hiShelfBw, lagCtl),
+			NamedControl.kr(prefix ++ "hiShelfGain", params.hiShelfGain, lagCtl)
+		);
 		chain = RemoveBadValues.ar( chain );
 
 		^chain;
 	}
+}
+
++ SequenceableCollection {
+
+	equi { arg ... args; ^this.multiChannelPerform('equi', *args) }
+
 }
