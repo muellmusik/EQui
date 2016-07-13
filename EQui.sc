@@ -268,6 +268,19 @@ EQui : QUserView {
 	}
 }
 
+EQuiParams {
+	var <>loShelfFreq = 100, <>loShelfGain = 0, <>loShelfRs = 1;
+	var <>loPeakFreq = 250, <>loPeakGain = 0, <>loPeakRs = 1;
+	var <>midPeakFreq = 1000, <>midPeakGain = 0, <>midPeakRs = 1;
+	var <>hiPeakFreq = 3500, <>hiPeakGain = 0, <>hiPeakRs = 1;
+	var <>hiShelfFreq = 6000, <>hiShelfGain = 0, <>hiShelfRs = 1;
+
+	asArgsArray {
+		^[ 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRs', 'midPeakFreq', 'midPeakGain', 'midPeakRs', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRs', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs' ].collectAs({|key| key->this.perform(key) }, IdentityDictionary).asArgsArray;
+	}
+
+}
+
 + UGen {
 
 	equi {|prefix = "", lag = 0.1|
