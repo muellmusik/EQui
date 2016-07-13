@@ -18,7 +18,7 @@ EQui : QUserView {
 
 	init {|intarget, inparams, inprefix, insr|
 		var selected = -1;
-		var downX, downY;
+		var dragY;
 		params = inparams ?? { EQuiParams() };
 		target = intarget;
 		prefix = inprefix;
@@ -168,8 +168,7 @@ EQui : QUserView {
 					( params.gainByIndex(index).linlin( range.neg, range, bounds.height, 0, \none ) ))
 				.dist( pt ) <= 5;
 			}) ? -1;
-			downX = x;
-			downY = y;
+
 			vw.refresh;
 		};
 
@@ -183,21 +182,24 @@ EQui : QUserView {
 
 			if( selected != -1 )
 			{
-				case { mod.isAlt }
+				if(mod.isAlt,
 				{
+					if(dragY.isNil, {
+						dragY = y;
+					});
 					params.setBwByIndex(selected,
-						(y - downY + params.bwByIndex(selected)
+						(y - dragY + params.bwByIndex(selected)
 							.explin( 0.1, 10, bounds.height, 0, \none ))
 						.linexp( bounds.height, 0, 0.1, 10, \none )
 						.clip(if( [0,4].includes(selected) ) { 0.6 } {0.1},
 						10).round(0.01));
 
-				}
-				{ true }
+				},
 				{
 					params.setFreqByIndex(selected, pt.x.linexp(0, bounds.width, min, max ).clip(20,20000).round(1));
 					params.setGainByIndex(selected, pt.y.linlin( 0, bounds.height, range, range.neg, \none ).clip2( range ).round(0.25));
-				};
+					dragY = nil;
+				});
 
 				this.doAction;
 				vw.refresh;
@@ -205,7 +207,9 @@ EQui : QUserView {
 			};
 
 
-		}
+		};
+
+		this.mouseUpAction = { dragY = nil };
 	}
 
 	doAction {
