@@ -266,12 +266,12 @@ EQuiParams {
 		var chain, lagCtl;
 		params = params ?? {EQuiParams()}; // defaults
 		chain = this;
-		lagCtl = Control.names([prefix ++ "lagEQ"]).kr(lag);
+		lagCtl = NamedControl.kr(prefix ++ "lagEQ", lag);
 
 		chain = BLowShelf.ar( chain,
 			NamedControl.kr(prefix ++ "loShelfFreq", params.loShelfFreq, lagCtl),
 			NamedControl.kr(prefix ++ "loShelfRs", params.loShelfRs, lagCtl),
-			NamedControl.kr(prefix ++ "loShelfGain", params.loShelfGain, lagCtl)
+			NamedControl.kr(prefix ++ "loShelfGain", params.loShelfGain).varlag(lagCtl, warp:\lin)
 		);
 		chain = BPeakEQ.ar( chain,
 			NamedControl.kr(prefix ++ "loPeakFreq", params.loPeakFreq, lagCtl),
