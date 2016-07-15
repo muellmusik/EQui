@@ -231,12 +231,16 @@ EQui : QUserView {
 }
 
 EQuiParams {
-	var <>loShelfFreq = 100, <>loShelfGain = 0, <>loShelfRs = 1;
-	var <>loPeakFreq = 250, <>loPeakGain = 0, <>loPeakRq = 1;
-	var <>midPeakFreq = 1000, <>midPeakGain = 0, <>midPeakRq = 1;
-	var <>hiPeakFreq = 3500, <>hiPeakGain = 0, <>hiPeakRq = 1;
-	var <>hiShelfFreq = 6000, <>hiShelfGain = 0, <>hiShelfRs = 1;
+	var <>loShelfFreq, <>loShelfGain, <>loShelfRs;
+	var <>loPeakFreq, <>loPeakGain, <>loPeakRq;
+	var <>midPeakFreq, <>midPeakGain, <>midPeakRq;
+	var <>hiPeakFreq, <>hiPeakGain, <>hiPeakRq;
+	var <>hiShelfFreq, <>hiShelfGain, <>hiShelfRs;
 	classvar bands = #[\loShelf, \loPeak, \midPeak, \hiPeak, \hiShelf];
+
+	*new {|loShelfFreq = 100, loShelfGain = 0, loShelfRs = 1, loPeakFreq = 250, loPeakGain = 0, loPeakRq = 1, midPeakFreq = 1000, midPeakGain = 0, midPeakRq = 1, hiPeakFreq = 3500, hiPeakGain = 0, hiPeakRq = 1,hiShelfFreq = 6000, hiShelfGain = 0, hiShelfRs = 1|
+		^super.newCopyArgs(loShelfFreq, loShelfGain, loShelfRs, loPeakFreq, loPeakGain, loPeakRq, midPeakFreq, midPeakGain, midPeakRq, hiPeakFreq, hiPeakGain, hiPeakRq, hiShelfFreq, hiShelfGain, hiShelfRs);
+	}
 
 	asArgsArray {|prefix|
 		^[ 'loShelfFreq', loShelfFreq, 'loShelfGain', loShelfGain, 'loShelfRs', loShelfRs, 'loPeakFreq', loPeakFreq, 'loPeakGain', loPeakGain, 'loPeakRq', loPeakRq, 'midPeakFreq', midPeakFreq, 'midPeakGain', midPeakGain, 'midPeakRq', midPeakRq, 'hiPeakFreq', hiPeakFreq, 'hiPeakGain', hiPeakGain, 'hiPeakRq', hiPeakRq, 'hiShelfFreq', hiShelfFreq, 'hiShelfGain', hiShelfGain, 'hiShelfRs', hiShelfRs ]
@@ -258,6 +262,11 @@ EQuiParams {
 		this.perform((bands[index] ++ suffix).asSymbol, val)
 	}
 
+	storeOn { arg stream;
+		stream << this.class.name << "(" <<*
+			[loShelfFreq, loShelfGain, loShelfRs, loPeakFreq, loPeakGain, loPeakRq, midPeakFreq, midPeakGain, midPeakRq, hiPeakFreq, hiPeakGain, hiPeakRq, hiShelfFreq, hiShelfGain, hiShelfRs] <<")"
+	}
+
 }
 
 + UGen {
@@ -276,17 +285,17 @@ EQuiParams {
 		chain = BPeakEQ.ar( chain,
 			NamedControl.kr(prefix ++ "loPeakFreq", params.loPeakFreq, lagCtl),
 			NamedControl.kr(prefix ++ "loPeakRq", params.loPeakRq, lagCtl),
-			NamedControl.kr(prefix ++ "loPeakGain", params.loPeakGain, lagCtl)
+			NamedControl.kr(prefix ++ "loPeakGain", params.loPeakGain).varlag(lagCtl, warp:\lin)
 		);
 		chain = BPeakEQ.ar( chain,
 			NamedControl.kr(prefix ++ "midPeakFreq", params.midPeakFreq, lagCtl),
 			NamedControl.kr(prefix ++ "midPeakRq", params.midPeakRq, lagCtl),
-			NamedControl.kr(prefix ++ "midPeakGain", params.midPeakGain, lagCtl)
+			NamedControl.kr(prefix ++ "midPeakGain", params.midPeakGain).varlag(lagCtl, warp:\lin)
 		);
 		chain = BPeakEQ.ar( chain,
 			NamedControl.kr(prefix ++ "hiPeakFreq", params.hiPeakFreq, lagCtl),
 			NamedControl.kr(prefix ++ "hiPeakRq", params.hiPeakRq, lagCtl),
-			NamedControl.kr(prefix ++ "hiPeakGain", params.hiPeakGain, lagCtl)
+			NamedControl.kr(prefix ++ "hiPeakGain", params.hiPeakGain).varlag(lagCtl, warp:\lin)
 		);
 		chain = BHiShelf.ar( chain,
 			NamedControl.kr(prefix ++ "hiShelfFreq", params.hiShelfFreq, lagCtl),
