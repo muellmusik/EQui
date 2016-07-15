@@ -1,6 +1,6 @@
 // ht to Wouter Snoei
 EQui : QUserView {
-	var <params, <target, prefix, sampleRate;
+	var params, <target, prefix, sampleRate;
 
 	*viewClass { ^QUserView }
 
@@ -14,7 +14,11 @@ EQui : QUserView {
 
 	target_ {|intarget| target = intarget; target.set(*params.asArgsArray(prefix)); }
 
-	params_ {|inparams| params = inparams; this.refresh; this.doAction }
+	value_ {|inparams| params = inparams.copy; this.refresh; }
+
+	valueAction_ {|inparams| this.value_(inparams); this.doAction }
+
+	value { ^params.copy }
 
 	init {|intarget, inparams, inprefix, insr|
 		var selected = -1;
