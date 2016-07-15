@@ -20,6 +20,14 @@ EQui : QUserView {
 
 	value { ^params.copy }
 
+	set { |...pairs|
+		pairs.pairsDo({|key val|
+			params.perform(key.asSymbol.asSetter, val);
+		});
+		this.refresh;
+		this.doAction;
+	}
+
 	init {|intarget, inparams, inprefix, insr|
 		var selected = -1;
 		var dragY;
