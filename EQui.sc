@@ -28,6 +28,17 @@ EQui : QUserView {
 		this.doAction;
 	}
 
+	sync {
+		[ 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs' ].do({|key|
+			key = (prefix ++ key).asSymbol;
+			if(target.isKindOf(NodeProxy).not, {
+				target.get(key, {|value| params.perform(key.asSetter, value); {this.refresh}.defer; [key, value].postln; });
+			}, {
+				params.perform(key.asSetter, target.get(key)); {this.refresh}.defer;
+			});
+		});
+	}
+
 	init {|intarget, inparams, inprefix, insr|
 		var selected = -1;
 		var dragY;
