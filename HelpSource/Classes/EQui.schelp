@@ -1,0 +1,75 @@
+TITLE:: EQui
+summary:: Easy 5 band Parametric EQ with auto GUI
+categories:: GUI
+related:: Classes/UserView, Classes/BEQSuite
+
+DESCRIPTION::
+EQui lets you quickly create a parametric EQ on the output of a given UGen. It takes a target, which must understand the set message as setting a link::Classes/NamedControl:: (so a Synth or and Ndef, or similar). The link::Classes/UGen#-equi:: method creates the necessary EQ UGens processing the receiver. The use of a prefix arg allows the creation of multiple EQuis within the same Synth. The EQ UGens are from the link::Classes/BEQSuite::, and consist of a link::Classes/BLowShelf::, three link::Classes/BPeakEQ::s, and a link::Classes/BHishelf::.
+
+
+CLASSMETHODS::
+
+PRIVATE:: viewClass, sizeHint
+
+METHOD:: new
+Create a new EQui.
+
+ARGUMENT:: parent
+An optional parent link::Classes/View::.
+
+ARGUMENT:: bounds
+A link::Classes/Rect:: or link::Classes/Point:: specifying the bounds of the EQui.
+
+ARGUMENT:: target
+A link::Classes/Synth:: or similar object (e.g. link::Classes/Ndef::) that will receive changes in this EQui's parameters. Generally one or more UGens in this will have received the link::Classes/UGen-equi:: message with the same prefix used here.
+
+ARGUMENT:: params
+An optional instance of link::Classes/EQuiParams:: containing initial parameter values.
+
+ARGUMENT:: prefix
+An optional link::Classes/String:: to use as a prefix to Control names. This is only necessary to distinguish when using multiple EQuis with the same synth.
+
+ARGUMENT:: sampleRate
+The sample rate at which target is running. If not specified, this will use Server.default.options.sampleRate. This is necessary to calculate responses correctly.
+
+returns:: A new EQui.
+
+
+INSTANCEMETHODS::
+
+PRIVATE:: init, doAction
+
+METHOD:: target
+Get or set this EQui's target (see above).
+
+ARGUMENT:: intarget
+
+
+METHOD:: sync
+Sync this EQui with the current state of its target.
+
+METHOD:: valueAction
+Set this EQui's parameters to new values without setting the target, or triggering the action.
+
+ARGUMENT:: inparams
+An instance of link::Classes/EQuiParams::.
+
+METHOD:: value
+Get or set this EQui's link::Classes/EQuiParams::. The getter returns a copy.
+
+ARGUMENT:: inparams
+An instance of link::Classes/EQuiParams::.
+
+METHOD:: set
+Set one or more named parameters to new values, triggering the action. Possible parameters are 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiShelfFreq', 'hiShelfGain', and 'hiShelfRs'.
+
+ARGUMENT::  ... pairs
+Pairs of parameter names and values. Names must be preceded by a prefix if one was supplied in *new.
+
+
+
+EXAMPLES::
+
+code::
+(some example code)
+::
