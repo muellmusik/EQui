@@ -4,7 +4,7 @@ categories:: GUI
 related:: Classes/UserView, Classes/BEQSuite
 
 DESCRIPTION::
-EQui lets you quickly create a parametric EQ on the output of a given UGen. It takes a target, which must understand the set message as setting a link::Classes/NamedControl:: (so a Synth or and Ndef, or similar). The link::Classes/UGen#-equi:: method creates the necessary EQ UGens processing the receiver. The use of a prefix arg allows the creation of multiple EQuis within the same Synth. The EQ UGens are from the link::Classes/BEQSuite::, and consist of a link::Classes/BLowShelf::, three link::Classes/BPeakEQ::s, and a link::Classes/BHishelf::.
+EQui lets you quickly create a parametric EQ on the output of a given UGen. It takes a target, which must understand the set message as setting a link::Classes/NamedControl:: (so a Synth or and Ndef, or similar). The link::Classes/UGen#-equi:: method creates the necessary EQ UGens processing the receiver. The use of a prefix arg allows the creation of multiple EQuis within the same Synth. The EQ UGens are from the link::Classes/BEQSuite::, and consist of a link::Classes/BLowShelf::, three link::Classes/BPeakEQ::s, and a link::Classes/BHishelf::. ht to Wouter Snoei whose MasterEQ formed the basis for this!
 
 
 CLASSMETHODS::
