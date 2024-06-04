@@ -1,0 +1,9 @@
+(
+  name: "EQui",
+  summary: "Parametric EQ with GUI for UGens and Ndefs.",
+  version: "1.0.0",
+  schelp: "EQui",
+  dependencies: [],
+  license: "GPL",
+  copyright: "Scott Wilson"
+)
