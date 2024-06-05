@@ -1,0 +1,15 @@
+INSTANCEMETHODS::
+
+METHOD:: equi
+Process the receiver through a 5 band parametric EQ. This uses the code::\filter:: NodeProxy role. The EQ UGens used are from the link::Classes/BEQSuite::, and consist of a link::Classes/BLowShelf::, three link::Classes/BPeakEQ::s, and a link::Classes/BHishelf::. They can be controlled by an link::Classes/EQui::, or directly using the following control names: Possible parameters are 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs', and 'lagEQ' (a lag time for all parameter changes). These names should be preceded by prefix (see below) if one was supplied. Unlike the UGen methods this will automatically create the GUI as well as the EQ UGens.
+
+ARGUMENT::params
+An optional instance of link::Classes/EQuiParams:: containing initial parameter values.
+
+ARGUMENT:: lag
+A lag time used when changing parameter values.
+
+ARGUMENT:: index
+An index for the equi \filter node. The default is 1000.
+
+returns:: The receiver.
