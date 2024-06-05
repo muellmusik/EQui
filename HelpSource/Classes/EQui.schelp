@@ -71,5 +71,52 @@ Pairs of parameter names and values. Names must be preceded by a prefix if one w
 EXAMPLES::
 
 code::
-(some example code)
+//////// Basic functionality
+
+(
+SynthDef(\testEQui, {
+	Out.ar(0, WhiteNoise.ar(0.1).equi);
+}).add;
+)
+
+(
+x = Synth(\testEQui);
+e = EQui(target: x); // change the GUI; alt-drag changes q
+)
+
+p = e.value.postcs; // get an EQuiParams representing the current state, post compile string to the window
+
+x.set(\midPeakGain, 6, \hiPeakGain, -6); // change values on synth
+e.sync; // sync the EQui
+
+e.valueAction = p; // reset to params stored in p, and update target
+
+e.valueAction = EQuiParams(345.0, -15.0, 1, 250, 0, 1, 900.0, 16.25, 1, 3500, 0, 1, 2634.0, -24.0, 1); // set to some manually created params
+
+x.free
+
+//////// With an Array of UGens
+
+x = { Saw.ar([120, 121], 0.1).equi }.play; // a stereo EQui
+EQui(target: x);
+
+x.free;
+
+//////// Multiple EQuis in the same target
+
+x = { [Saw.ar(120, 0.1).equi(prefix: "saw-"), GrayNoise.ar(0.1).equi(prefix: "noise-")] }.play; // a stereo EQui
+(
+EQui(target: x, prefix: "saw-");
+EQui(target: x, prefix: "noise-");
+)
+
+x.free;
+
+//////// With an Ndef
+
+Ndef(\clipnoise, { ClipNoise.ar(0.1) }).play;
+
+Ndef(\clipnoise).equi; // adds \filter -> equi at index 1000 by default
+
+Ndef(\clipnoise).clear;
 ::
