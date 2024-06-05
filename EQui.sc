@@ -5,6 +5,7 @@ EQui : QUserView {
 	*viewClass { ^QUserView }
 
 	*new { arg parent, bounds, target, params, prefix = "", sampleRate;
+		if(parent.isNil, { parent = Window(prefix ++ target, EQui.sizeHint).front });
 		^super.new(parent, bounds).init(target, params, prefix, sampleRate);
 	}
 
@@ -425,7 +426,9 @@ EQuiParams {
 	}
 
 	asArgsArray {|prefix|
-		^[ 'loShelfFreq', loShelfFreq, 'loShelfGain', loShelfGain, 'loShelfRs', loShelfRs, 'loPeakFreq', loPeakFreq, 'loPeakGain', loPeakGain, 'loPeakRq', loPeakRq, 'midPeakFreq', midPeakFreq, 'midPeakGain', midPeakGain, 'midPeakRq', midPeakRq, 'hiPeakFreq', hiPeakFreq, 'hiPeakGain', hiPeakGain, 'hiPeakRq', hiPeakRq, 'hiShelfFreq', hiShelfFreq, 'hiShelfGain', hiShelfGain, 'hiShelfRs', hiShelfRs ]
+		^[ 'loShelfFreq', loShelfFreq, 'loShelfGain', loShelfGain, 'loShelfRs', loShelfRs, 'loPeakFreq', loPeakFreq, 'loPeakGain', loPeakGain, 'loPeakRq', loPeakRq, 'midPeakFreq', midPeakFreq, 'midPeakGain', midPeakGain, 'midPeakRq', midPeakRq, 'hiPeakFreq', hiPeakFreq, 'hiPeakGain', hiPeakGain, 'hiPeakRq', hiPeakRq, 'hiShelfFreq', hiShelfFreq, 'hiShelfGain', hiShelfGain, 'hiShelfRs', hiShelfRs ].collect({|item, i|
+			if(i.even, { (prefix ++ item).asSymbol }, { item });
+		});
 	}
 
 	freqByIndex{|index| ^this.perform((bands[index] ++ 'Freq').asSymbol) }
