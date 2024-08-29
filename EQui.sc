@@ -34,8 +34,6 @@ EQui : QUserView {
 			key = (prefix ++ key).asSymbol;
 			if(target.isKindOf(NodeProxy).not, {
 				target.get(key, {|value|
-					[key, value, target.get(key)].postln;
-
 					params.perform(key.asSetter, value);
 					{this.refresh}.defer;
 				});
