@@ -13,7 +13,7 @@ EQui : QUserView {
 		^Point(300,200);
 	}
 
-	target_ {|intarget| target = intarget; target.set(*params.asArgsArray(prefix)); }
+	target_ {|intarget| target = intarget; target.set(*params.asArgsArray(prefix));}
 
 	value_ {|inparams| params = inparams.copy; this.refresh; }
 
@@ -50,7 +50,6 @@ EQui : QUserView {
 		target = intarget;
 		prefix = inprefix;
 		sampleRate = insr ?? {Server.default.options.sampleRate} ? 44100;
-
 		this.drawFunc = { |vw|
 			var freqs, svals, values, values2, bounds, zeroline;
 			var min = 20, max = 22050, range = 24;
@@ -59,6 +58,7 @@ EQui : QUserView {
 			var hlines = [-18,-12,-6,6,12,18];
 			var pt, strOffset = 11;
 			var removeIndexes = Set[];
+			var definedFont = Font( Font.defaultSansFace, 14 );
 
 			if (params.hiPassBypass == 1, {removeIndexes.add(0);});
 			if (params.loShelfBypass == 1, {removeIndexes.add(1);});
@@ -130,7 +130,7 @@ EQui : QUserView {
 			});
 			Pen.line( 0@zeroline, bounds.width@zeroline ).stroke;
 
-			Pen.font = Font( Font.defaultSansFace, 10 );
+			Pen.font = definedFont;
 
 			Pen.color = Color.gray(0.2).alpha_(0.5);
 			hlines.do({ |hline|
@@ -159,13 +159,15 @@ EQui : QUserView {
 					params.gainByIndex(selected),
 					params.bwByIndex(selected)
 				);
-				strBounds = string.bounds(Pen.font);
+
+
+				strBounds = string.bounds(definedFont);
 				strBounds.top = 1;
 				strBounds.left = this.bounds.width - 1 - strBounds.width;
 				Pen.color = Color.white.alpha_(0.8);
 				Pen.addRect(strBounds);
 				Pen.fill;
-				Pen.stringInRect(string, strBounds, Pen.font, Color.gray(0.2).alpha_(0.5), \right);
+				Pen.stringInRect(string, strBounds, definedFont, Color.gray(0.2).alpha_(0.5), \right);
 			});
 
 			values.do({ |svals,i|
@@ -285,8 +287,8 @@ EQui : QUserView {
 
 	coeffsBLowPass { arg sr = 44100, freq = 1200.0, rq = 1.0;
 		// Lo-pass filter
-
 		var w0, cos_w0, i, alpha, a0, a1, b0rz, b1, b2;
+
 		w0 = (pi * 2 * freq) / sr;
 		cos_w0 = w0.cos; i = 1 - cos_w0;
 		alpha = w0.sin * 0.5 * rq;
@@ -352,7 +354,6 @@ EQui : QUserView {
 
 	magResponse { arg freqs = 1000, sr = 44100, coeffs;
 		var ma, ar, size;
-
 		#ma, ar = coeffs;
 		size = ma.size.max( ar.size + 1 );
 
@@ -372,7 +373,6 @@ EQui : QUserView {
 		var a0, a1, a2, b1, b2;
 		var ax0, ax1, ax2, bx0, bx1;
 		var radPerSmp; //= 2pi / sr;
-
 		sr = sr ?? { Server.default.sampleRate };
 		radPerSmp = 2pi / sr;
 
@@ -405,7 +405,6 @@ EQui : QUserView {
 		var a0, a1, a2, a3, a4, a5, b1, b2, b3, b4, b5;
 		var ax0, ax1, ax2, ax3, ax4, ax5, bx0, bx1, bx2, bx3, bx4;
 		var radPerSmp; //= 2pi / sr;
-
 		sr = sr ?? { Server.default.sampleRate };
 		radPerSmp = 2pi / sr;
 
@@ -449,7 +448,6 @@ EQui : QUserView {
 		var ax, bx;
 		var nom, denom;
 		var cosn,  pfreq;
-
 		sr = sr ?? { Server.default.sampleRate };
 		radPerSmp = 2pi / sr;
 
@@ -529,6 +527,9 @@ EQuiParams {
 		params = params ?? {EQuiParams()}; // defaults
 		chain = this;
 		lagCtl = NamedControl.kr(prefix ++ "lagEQ", lag);
+
+		SendTrig.kr(Impulse.kr(2), 0, NodeID.ir);
+		SendTrig.kr(Impulse.kr(2), 1, params.hiPassFreq);
 
 		chain = Select.ar(NamedControl.kr(prefix ++ "hiPassBypass", params.hiPassBypass, lagCtl),
 			[
