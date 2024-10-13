@@ -1,5 +1,5 @@
 TITLE:: EQui
-summary:: Easy 5 band Parametric EQ with auto GUI
+summary:: Easy 7 band Parametric EQ with auto GUI
 categories:: GUI
 related:: Classes/UserView, Classes/BEQSuite
 
@@ -61,7 +61,9 @@ ARGUMENT:: inparams
 An instance of link::Classes/EQuiParams::.
 
 METHOD:: set
-Set one or more named parameters to new values, triggering the action. Possible parameters are 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiShelfFreq', 'hiShelfGain', and 'hiShelfRs'.
+Set one or more named parameters to new values, triggering the action. Possible parameters are 'hiPassFreq', 'hiPassGain', 'hiPassRq', 'hiPassBypass', 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loShelfBypass', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'loPeakBypass', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'midPeakBypass', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiPeakBypass', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs', 'hiShelfBypass', 'loPassFreq', 'loPassGain', 'loPassRq' and 'loPassBypass'.
+
+
 
 ARGUMENT::  ... pairs
 Pairs of parameter names and values. Names must be preceded by a prefix if one was supplied in *new.
@@ -87,6 +89,10 @@ e = EQui(target: x); // change the GUI; alt-drag changes q
 p = e.value.postcs; // get an EQuiParams representing the current state, post compile string to the window
 
 x.set(\midPeakGain, 6, \hiPeakGain, -6); // change values on synth
+e.sync; // sync the EQui
+
+// You can enable and disable filter by setting the bypass value for the corresponding filter
+x.set(\hiPassBypass, 0,\loShelfBypass, 1, \loPeakBypass, 1, \midPeakBypass, 1, \hiPeakBypass, 1, \hiShelfBypass, 1, \loPassBypass, 0); // change values on synth - this will bypass every filter except low pass and high pass filter
 e.sync; // sync the EQui
 
 e.valueAction = p; // reset to params stored in p, and update target

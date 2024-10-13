@@ -1,7 +1,7 @@
 INSTANCEMETHODS::
 
 METHOD:: equi
-Process the receiver through a 5 band parametric EQ. The EQ UGens used are from the link::Classes/BEQSuite::, and consist of a link::Classes/BLowShelf::, three link::Classes/BPeakEQ::s, and a link::Classes/BHishelf::. They can be controlled by an link::Classes/EQui::, or directly using the following control names: Possible parameters are 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs', and 'lagEQ' (a lag time for all parameter changes). These names should be preceded by prefix (see below) if one was supplied.
+Process the receiver through a 5 band parametric EQ. The EQ UGens used are from the link::Classes/BEQSuite::, and consist of a link::Classes/BLowShelf::, three link::Classes/BPeakEQ::s, and a link::Classes/BHishelf::. They can be controlled by an link::Classes/EQui::, or directly using the following control names: Possible parameters are 'hiPassFreq', 'hiPassGain', 'hiPassRq', 'hiPassBypass', 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loShelfBypass', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'loPeakBypass', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'midPeakBypass', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiPeakBypass', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs', 'hiShelfBypass', 'loPassFreq', 'loPassGain', 'loPassRq', 'loPassBypass', and 'lagEQ' (a lag time for all parameter changes). These names should be preceded by prefix (see below) if one was supplied.
 
 ARGUMENT::params
 An optional instance of link::Classes/EQuiParams:: containing initial parameter values.
