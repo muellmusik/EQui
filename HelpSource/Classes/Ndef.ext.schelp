@@ -12,4 +12,7 @@ A lag time used when changing parameter values.
 ARGUMENT:: index
 An index for the equi \filter node. The default is 1000.
 
+ARGUMENT:: openWindow
+An Boolean indicating whether an EQui window should be opened. The default is true.
+
 returns:: The receiver.

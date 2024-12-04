@@ -508,11 +508,13 @@ EQuiParams {
 
 + Ndef {
 
-	equi { |params, lag = 0.1, index = 1000|
+	equi { |params, lag = 0.1, index = 1000, openWindow = true|
 		var window;
 		this[index] = \filter -> {|in| in.equi(params, nil, lag) };
-		window = Window.new("Ndef('" ++ key ++ "') EQui", EQui.sizeHint).front;
-		EQui(window, target:this);
+		if(openWindow, {
+			window = Window.new("Ndef('" ++ key ++ "') EQui", EQui.sizeHint).front;
+			EQui(window, target:this);
+		});
 	}
 }
 		
