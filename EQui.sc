@@ -31,11 +31,12 @@ EQui : QUserView {
 
 	sync {
 		[ 'loShelfFreq', 'loShelfGain', 'loShelfRs', 'loPeakFreq', 'loPeakGain', 'loPeakRq', 'midPeakFreq', 'midPeakGain', 'midPeakRq', 'hiPeakFreq', 'hiPeakGain', 'hiPeakRq', 'hiShelfFreq', 'hiShelfGain', 'hiShelfRs' ].do({|key|
-			key = (prefix ++ key).asSymbol;
+			var pkey;
+			pkey = (prefix ++ key).asSymbol;
 			if(target.isKindOf(NodeProxy).not, {
-				target.get(key, {|value| params.perform(key.asSetter, value); {this.refresh}.defer; [key, value].postln; });
+				target.get(pkey, {|value| params.perform(key.asSetter, value); {this.refresh}.defer; [pkey, key, value].postln; });
 			}, {
-				params.perform(key.asSetter, target.get(key)); {this.refresh}.defer;
+				params.perform(key.asSetter, target.get(pkey)); {this.refresh}.defer;
 			});
 		});
 	}
