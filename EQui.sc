@@ -6,7 +6,7 @@ EQui : QUserView {
 
 	*new { arg parent, bounds, target, params, prefix = "", sampleRate;
 		if(parent.isNil, { parent = Window(prefix ++ target, EQui.sizeHint).front });
-		^super.new(parent, bounds).init(target, params, prefix, sampleRate);
+		^super.new(parent, bounds).init(target, params, prefix, sampleRate).sync;
 	}
 
 	*sizeHint {
@@ -517,4 +517,4 @@ EQuiParams {
 		});
 	}
 }
-		
+
