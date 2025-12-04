@@ -41,6 +41,8 @@ EQui : QUserView {
 		});
 	}
 
+	flat { this.valueAction = EQuiParams(); } // default vals
+
 	init {|intarget, inparams, inprefix, insr|
 		var selected = -1;
 		var dragY;
@@ -230,6 +232,8 @@ EQui : QUserView {
 		};
 
 		this.mouseUpAction = { dragY = nil };
+
+		this.setContextMenuActions(MenuAction("Flat", {this.flat}));
 	}
 
 	doAction {
