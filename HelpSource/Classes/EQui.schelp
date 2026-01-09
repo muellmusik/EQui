@@ -24,7 +24,7 @@ ARGUMENT:: target
 A link::Classes/Synth:: or similar object (e.g. link::Classes/Ndef::) that will receive changes in this EQui's parameters. Generally one or more UGens in this will have received the link::Classes/UGen-equi:: message with the same prefix used here.
 
 ARGUMENT:: params
-An optional instance of link::Classes/EQuiParams:: containing initial parameter values.
+An optional instance of link::Classes/EQuiParams:: containing initial parameter values. If supplied set the target to those values. If nil sync the GUI to the target's current state.
 
 ARGUMENT:: prefix
 An optional link::Classes/String:: to use as a prefix to Control names. This is only necessary to distinguish when using multiple EQuis with the same synth.

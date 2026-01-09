@@ -46,9 +46,15 @@ EQui : QUserView {
 	init {|intarget, inparams, inprefix, insr|
 		var selected = -1;
 		var dragY;
-		params = inparams ?? { EQuiParams() };
 		target = intarget;
 		prefix = inprefix;
+		if(inparams.notNil, {
+			params = inparams;
+			target.set(*params.asArgsArray(prefix)); // set target to supplied params
+		},{
+			params = EQuiParams(); // make a blank params and sync to current state
+			this.sync;
+		});
 		sampleRate = insr ?? {Server.default.options.sampleRate} ? 44100;
 
 		this.drawFunc = { |vw|
