@@ -13,6 +13,28 @@ EQui : QUserView {
 		^Point(300,200);
 	}
 
+	*withScope { arg parent, bounds, target, params, prefix = "", sampleRate;
+		var scopeView, equi, vstack, freqScope, sj;
+		if (bounds.isNil) { bounds = EQui.sizeHint };
+		if(parent.isNil, { parent = Window(prefix ++ target, bounds).layout_(HLayout().margins_([0,0,0,0])).front });
+		scopeView = View(parent, bounds: bounds);
+		equi = EQui(scopeView, scopeView.bounds, target, params, prefix, sampleRate);
+		vstack = View(scopeView, bounds).resize_(5);
+		freqScope = FreqScopeView(server:Server.default);
+		sj = SkipJack({equi.sync}, 1/60);
+		freqScope.inBus_(target.bus);
+		freqScope.active_(true);
+		freqScope.freqMode_(1);
+		freqScope.background_(Color(1,1,1,0.9));
+		freqScope.waveColors_([Color(0,0.3,0.3)]);
+		vstack.onClose_({freqScope.kill; sj.stop;});
+		vstack.layout = StackLayout(
+			equi,
+			freqScope
+		).mode_(1);
+                ^equi;
+	}
+
 	target_ {|intarget| target = intarget; target.set(*params.asArgsArray(prefix)); }
 
 	value_ {|inparams| params = inparams.copy; this.refresh; }
@@ -471,32 +493,32 @@ EQuiParams {
 		var chain, lagCtl;
 		params = params ?? {EQuiParams()}; // defaults
 		chain = this;
-		lagCtl = NamedControl.kr(prefix ++ "lagEQ", lag);
+		lagCtl = NamedControl.kr(prefix ++ "lagEQ", lag, spec: [0,1]);
 
 		chain = BLowShelf.ar( chain,
-			NamedControl.kr(prefix ++ "loShelfFreq", params.loShelfFreq, lagCtl),
-			NamedControl.kr(prefix ++ "loShelfRs", params.loShelfRs, lagCtl),
-			NamedControl.kr(prefix ++ "loShelfGain", params.loShelfGain).varlag(lagCtl, warp:\lin)
+			NamedControl.kr(prefix ++ "loShelfFreq", params.loShelfFreq, lagCtl, spec: \freq),
+			NamedControl.kr(prefix ++ "loShelfRs", params.loShelfRs, lagCtl, spec: [0.6,10, \exp]),
+			NamedControl.kr(prefix ++ "loShelfGain", params.loShelfGain, spec: [-24,24, \lin]).varlag(lagCtl, warp:\lin)
 		);
 		chain = BPeakEQ.ar( chain,
-			NamedControl.kr(prefix ++ "loPeakFreq", params.loPeakFreq, lagCtl),
-			NamedControl.kr(prefix ++ "loPeakRq", params.loPeakRq, lagCtl),
-			NamedControl.kr(prefix ++ "loPeakGain", params.loPeakGain).varlag(lagCtl, warp:\lin)
+			NamedControl.kr(prefix ++ "loPeakFreq", params.loPeakFreq, lagCtl, spec: \freq),
+			NamedControl.kr(prefix ++ "loPeakRq", params.loPeakRq, lagCtl, spec: [0.1,10, \exp]),
+			NamedControl.kr(prefix ++ "loPeakGain", params.loPeakGain, spec: [-24,24, \lin]).varlag(lagCtl, warp:\lin)
 		);
 		chain = BPeakEQ.ar( chain,
-			NamedControl.kr(prefix ++ "midPeakFreq", params.midPeakFreq, lagCtl),
-			NamedControl.kr(prefix ++ "midPeakRq", params.midPeakRq, lagCtl),
-			NamedControl.kr(prefix ++ "midPeakGain", params.midPeakGain).varlag(lagCtl, warp:\lin)
+			NamedControl.kr(prefix ++ "midPeakFreq", params.midPeakFreq, lagCtl, spec: \freq),
+			NamedControl.kr(prefix ++ "midPeakRq", params.midPeakRq, lagCtl, spec: [0.1,10, \exp]),
+			NamedControl.kr(prefix ++ "midPeakGain", params.midPeakGain, spec: [-24,24, \lin]).varlag(lagCtl, warp:\lin)
 		);
 		chain = BPeakEQ.ar( chain,
-			NamedControl.kr(prefix ++ "hiPeakFreq", params.hiPeakFreq, lagCtl),
-			NamedControl.kr(prefix ++ "hiPeakRq", params.hiPeakRq, lagCtl),
-			NamedControl.kr(prefix ++ "hiPeakGain", params.hiPeakGain).varlag(lagCtl, warp:\lin)
+			NamedControl.kr(prefix ++ "hiPeakFreq", params.hiPeakFreq, lagCtl, spec: \freq),
+			NamedControl.kr(prefix ++ "hiPeakRq", params.hiPeakRq, lagCtl, spec: [0.1,10, \exp]),
+			NamedControl.kr(prefix ++ "hiPeakGain", params.hiPeakGain, spec: [-24,24, \lin]).varlag(lagCtl, warp:\lin)
 		);
 		chain = BHiShelf.ar( chain,
-			NamedControl.kr(prefix ++ "hiShelfFreq", params.hiShelfFreq, lagCtl),
-			NamedControl.kr(prefix ++ "hiShelfRs", params.hiShelfRs, lagCtl),
-			NamedControl.kr(prefix ++ "hiShelfGain", params.hiShelfGain, lagCtl)
+			NamedControl.kr(prefix ++ "hiShelfFreq", params.hiShelfFreq, lagCtl, spec: \freq),
+			NamedControl.kr(prefix ++ "hiShelfRs", params.hiShelfRs, lagCtl, spec: [0.6,10, \exp]),
+			NamedControl.kr(prefix ++ "hiShelfGain", params.hiShelfGain, lagCtl, spec: [-24,24, \lin])
 		);
 		chain = this.removeBadValues( chain );
 
